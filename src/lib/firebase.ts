@@ -1,8 +1,16 @@
-// src/lib/firebase.ts
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInAnonymously, User } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
 
+
+import { Platform } from 'react-native';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import {
+  getAuth,
+  initializeAuth,
+  onAuthStateChanged,
+  signInAnonymously,
+  type User,
+} from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBYsKhMkjo_jhg1Koo_d9FnMxRqIc7S_Kw",
@@ -14,7 +22,6 @@ const firebaseConfig = {
   measurementId: "G-GEK095M3F7"
 };
 
-
 let app: FirebaseApp;
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);
@@ -22,15 +29,22 @@ if (!getApps().length) {
   app = getApps()[0]!;
 }
 
-export const auth = getAuth(app);
+// ✅ auth init: web uses getAuth; native uses initializeAuth with AsyncStorage
+const _auth =
+  Platform.OS === 'web'
+    ? getAuth(app)
+    : initializeAuth(app, { persistence: /* @ts-ignore */ (getReactNativePersistence as any)(AsyncStorage) });
+
+// typesafety for getReactNativePersistence at runtime:
+import { getReactNativePersistence } from 'firebase/auth';
+
+export const auth = _auth;
 export const rtdb = getDatabase(app);
 
-// tiny helper to ensure we’re signed in anonymously
 export const ensureAnonSignIn = async (): Promise<User> => {
   if (auth.currentUser) return auth.currentUser;
   const cred = await signInAnonymously(auth);
   return cred.user;
 };
 
-// subscribe to auth changes
 export const listenAuth = (cb: (user: User | null) => void) => onAuthStateChanged(auth, cb);
