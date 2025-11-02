@@ -1,15 +1,17 @@
+
 import React from 'react';
-import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useAuthGate } from './useAuthGate';
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const { isReady } = useAuthGate();
+  const { user, isReady, err } = useAuthGate();
 
-  if (!isReady) {
+  if (!isReady || !user) {
     return (
       <View style={styles.splash}>
         <ActivityIndicator />
         <Text style={styles.txt}>signing you in…</Text>
+        {err ? <Text style={styles.err}>{String(err)}</Text> : null}
       </View>
     );
   }
@@ -17,6 +19,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  splash: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  splash: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   txt: { marginTop: 10 },
+  err: { color: '#ef4444', marginTop: 8, textAlign: 'center' },
 });

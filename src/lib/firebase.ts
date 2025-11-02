@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const firebaseConfig = {
   apiKey: "AIzaSyBYsKhMkjo_jhg1Koo_d9FnMxRqIc7S_Kw",
   authDomain: "sumo-93997.firebaseapp.com",
+  databaseURL: "https://sumo-93997-default-rtdb.firebaseio.com/",
   projectId: "sumo-93997",
   storageBucket: "sumo-93997.firebasestorage.app",
   messagingSenderId: "913062446103",
